@@ -4,13 +4,13 @@ import tqdm
 import re
 from insightface.app import FaceAnalysis
 import pandas as pd
-#import reorganize
+from dataloader import reorganize
 import argparse
 #import check_eye_pos
 
 
 
-def detect_face_eye(frames_path):
+def detect_face_eye(frames_path, video_name):
     '''
     :param frames_path: path containing extracted frames from a video
     :return:
@@ -24,10 +24,10 @@ def detect_face_eye(frames_path):
     app.prepare(ctx_id=-1)  # Using CPU
 
     image_folder = frames_path  # Folder containing extracted frames
-    output_folder = os.path.join(frames_path, '../Face_Detected')  # Folder to save detected faces
+    output_folder = os.path.join('../source_videos/',video_name,'/Frames/Cropped') # Folder to save detected faces
     #output_txt_file = './test/output_folder_small_20/eye_pos_original.txt'  # Output txt file for eye positions (original image)
-    output_txt_file_cropped = os.path.join(frames_path, '../Face_Detected/eye_pos_relative_v1.txt' ) # Output txt file for eye positions (cropped image)
-    output_txt_file_cropped_sorted = os.path.join(frames_path, '../Face_Detected/eye_pos_relative.txt') # Output txt file for eye positions (cropped image) sorted by index
+    output_txt_file_cropped = os.path.join('../source_videos/',video_name,'/Frames/Cropped/eye_pos_relative_v1.txt' ) # Output txt file for eye positions (cropped image)
+    output_txt_file_cropped_sorted = os.path.join('../source_videos/',video_name,'/Frames/Cropped/eye_pos_relative.txt') # Output txt file for eye positions (cropped image) sorted by index
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -108,11 +108,11 @@ def detect_face_eye(frames_path):
 
     return output_folder, output_txt_file_cropped_sorted
 
-def preproces(args, frames_path):
+def preproces(args, frames_path, video_name):
     ## Modify the path where the frames from the video are located:
 
     # Detect faces and eye positions
-    output_folder, output_txt_file_cropped_sorted = detect_face_eye(frames_path)
+    output_folder, output_txt_file_cropped_sorted = detect_face_eye(frames_path, video_name)
     print(f"Face and eye positions detected. New frames stored in {output_folder}, and eye position stored in {output_txt_file_cropped_sorted}")
 
     # Optionally check that the cropped images correspond to the eye position detected:
@@ -122,8 +122,8 @@ def preproces(args, frames_path):
     # Reorganize the input structure so it aligns with the required.
     #output_folder='../Video/face_frames'
     #output_txt_file_cropped_sorted='../Video/face_frames/eye_pos_relative.txt'
-    #reorganize.organize_images_and_write_txt(output_folder, output_txt_file_cropped_sorted, batch_size=args.time_size)
-    #reorganize.create_additional_files(output_folder)
+    reorganize.organize_images_and_write_txt(output_folder, output_txt_file_cropped_sorted, batch_size=args.time_size)
+    reorganize.create_additional_files(output_folder)
     #print(f"Files reorganized.")
 
 if __name__ == '__main__':
