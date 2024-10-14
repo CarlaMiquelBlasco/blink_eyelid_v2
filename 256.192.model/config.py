@@ -13,7 +13,7 @@ class Config:
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     this_dir_name = cur_dir.split('/')[-1]
     root_dir = os.path.join(cur_dir, '..')
-    data_dir = "/data/data1/zengwenzheng/HUST_LEBW/TIFS2023_release/HUST_LEBW/"  
+    data_dir = "/Users/carlamiquelblasco/Library/Mobile Documents/com~apple~CloudDocs/Desktop/MASTER BERGEN/Q1/NONMANUAL/BLINK_EYELID/blink_eyelid2/Data"
     model = 'CPN18'
 
     lr = 5e-4
@@ -22,7 +22,8 @@ class Config:
     num_clusters = 4
     batch_size = 1
     weight_decay = 1e-5
-    time_size = 10
+    time_size = 3
+    VideoID = 'DictaSign_lsf_S2_T2_B15'
 
     num_class = 2
     root_path = os.path.join(data_dir, 'test')

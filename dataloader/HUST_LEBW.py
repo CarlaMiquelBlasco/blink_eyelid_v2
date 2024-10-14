@@ -14,8 +14,9 @@ import torchvision.transforms as transforms
 
 
 class HUST_LEBW(data.Dataset):
-    def __init__(self, cfg, train=True):
+    def __init__(self, cfg, train=False):
         self.img_folder = cfg.root_path
+        self.batch_size = cfg.time_size
         self.is_train = train
         self.inp_res = cfg.data_shape
         self.out_res = cfg.output_shape
@@ -38,14 +39,17 @@ class HUST_LEBW(data.Dataset):
 
         with open(self.non_blink_gt_path, "r") as non_blink_file:
             non_blink = non_blink_file.readlines()
-        self.anno = blink + non_blink
 
-        
+        #with open(self.img_folder + '/check/' + '/eye_pos_relative_all.txt',"r") as pos_file:
+        #    pos = pos_file.readlines()
+        self.anno = blink+non_blink
+
+
 
 
     def augmentationCropImage(self, img, joints=None):
         height, width = self.inp_res[0], self.inp_res[1]
-        
+
         img = cv2.resize(img, (width, height))
 
         return img
@@ -69,22 +73,26 @@ class HUST_LEBW(data.Dataset):
         blink_label = torch.tensor(int(image_path[0]))
         pos_path=image_path[1].split('/')
 
-        with open(self.img_folder + '/check/' + pos_path[1] + '/' + pos_path[2] + '/10/eye_pos_relative.txt',"r") as pos_file:
+        with open(self.img_folder + '/check/' + pos_path[1] +'/'+pos_path[2] + '/'+str(self.batch_size)+'/eye_pos_relative.txt',"r") as pos_file:
             pos = pos_file.readlines()
+            #print(pos)
 
-        for i in range(1, 11):
+        for i in range(1, self.batch_size+1):
             img_path = os.path.join(self.img_folder, image_path[i])
             img_path = img_path.strip('.bmp')
             img_path = img_path+'face.bmp'
 
             image = cv2.imread(img_path)
+            os.path.exists(img_path)
+            if image is None:
+                raise RuntimeError(f"Error reading image {img_path}")
 
             pos_cur = pos[i - 1].strip(' \n')
             pos_cur = pos_cur.split(' ')
             if self.eye == 'right':
                 eye_pos = torch.tensor([int(float(pos_cur[3]) / image.shape[1] * 192), int(float(pos_cur[4]) / image.shape[0] * 256)])
             else:
-                 eye_pos = torch.tensor([int(float(pos_cur[1]) / image.shape[1] * 192), int(float(pos_cur[2]) / image.shape[0] * 256)])
+                eye_pos = torch.tensor([int(float(pos_cur[1]) / image.shape[1] * 192), int(float(pos_cur[2]) / image.shape[0] * 256)])
             eye_pos[0] = min(eye_pos[0], 191-50)
             eye_pos[0] = max(eye_pos[0], 50)
             eye_pos[1] = min(eye_pos[1], 255 - 50)
